@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Pixain Diagnóstico - Negócios AFRO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9A6B3F 0%, #654321 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            width: 200px;
+            height: 100px;
+            background: linear-gradient(45deg, #9A6B3F, #654321);
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #654321;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #654321;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #9A6B3F, #654321);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .category-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .category-description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #9A6B3F, #654321);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #654321;
+            font-weight: 600;
+        }
+
+        .question-item {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #654321;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #654321;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #654321;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .slider-value {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #654321;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9A6B3F, #654321);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(101, 67, 33, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #654321;
+            border: 2px solid #654321;
+        }
+
+        .btn-secondary:hover {
+            background: #654321;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #654321;
+        }
+
+        .result-score {
+            font-size: 36px;
+            font-weight: bold;
+            color: #654321;
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-forte { background: #654321; color: #fff; }
+        .status-oportunidade { background: #fff3cd; color: #856404; }
+        .status-prioridade { background: #f8d7da; color: #721c24; }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .recommendations {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-category {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .rec-forte { background: #654321; color: #fff; }
+        .rec-oportunidade { background: #fff3cd; }
+        .rec-prioridade { background: #f8d7da; }
+
+        .objection-breaker {
+            background: linear-gradient(135deg, #9A6B3F, #654321);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .objection-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .objection-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+        #edit-toolbar { position: fixed; right: 12px; bottom: 12px; z-index: 50; display: flex; gap: 8px; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        #edit-toolbar .btn { margin: 0; padding: 10px 16px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); width: auto; }
+        body.editing [data-edit] { outline: 2px dashed #c9a227; outline-offset: 3px; cursor: text; background-clip: padding-box; }
+        body.editing [data-edit]:focus { outline: 2px solid #c9a227; background: rgba(255,244,200,0.35); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="edit-toolbar">
+            <button class="btn btn-primary" id="btn-edit" onclick="toggleEdit()">✏️ Modo edição</button>
+            <button class="btn btn-secondary" id="btn-reset" onclick="resetEdits()" style="display:none;background:#fff">↩ Restaurar original</button>
+        </div>
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">DIAGNÓSTICO AFRO</div>
+            <h1>Diagnóstico de Negócios AFRO</h1>
+            <p>Avaliação completa para empreendedores afro que desejam crescer com uma mentoria de acompanhamento personalizado</p>
+        </div>
+
+        <!-- Seção 1: Dados Pessoais -->
+        <div class="section active" id="section-0">
+            <h2>Informações Iniciais</h2>
+            <div class="form-group">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" placeholder="Digite seu nome completo">
+            </div>
+            <div class="form-group">
+                <label for="ideia">Um breve resumo sobre o seu negócio afro (o que oferece, para quem e há quanto tempo atua):</label>
+                <textarea id="ideia" rows="4" placeholder="Conte sobre o seu negócio, seus produtos ou serviços e seu público..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="experiencia">Um breve resumo sobre a sua trajetória profissional e os principais desafios hoje:</label>
+                <textarea id="experiencia" rows="4" placeholder="Conte sobre sua trajetória e o que mais tem dificultado o crescimento..."></textarea>
+            </div>
+            <div class="navigation">
+                <div></div>
+                <button class="btn btn-primary" onclick="nextSection()">Iniciar Diagnóstico</button>
+            </div>
+        </div>
+
+        <!-- Seções das Categorias -->
+        <div class="section" id="section-1">
+            <div class="progress-text">Categoria 1 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 12.5%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 1 – POTENCIAL DE IMPACTO</div>
+                <div class="category-description">Avalia o quanto o seu conhecimento e experiência podem gerar transformações para seus clientes</div>
+            </div>
+            <div id="questions-1"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-2">
+            <div class="progress-text">Categoria 2 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 25%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 2 – POTENCIAL DE TÉCNICA</div>
+                <div class="category-description">Mede o quanto o seu conhecimento técnico pode destacar seu negócio, considerando o valor que pode gerar.</div>
+            </div>
+            <div id="questions-2"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-3">
+            <div class="progress-text">Categoria 3 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 37.5%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 3 – GESTÃO FINANCEIRA</div>
+                <div class="category-description">Verifica o quanto você domina a gestão financeira do seu negócio.</div>
+            </div>
+            <div id="questions-3"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-4">
+            <div class="progress-text">Categoria 4 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 4 – POTENCIAL DE NEGÓCIOS</div>
+                <div class="category-description">Avalia a saúde do seu negócio e seu potencial no mercado AFRO.</div>
+            </div>
+            <div id="questions-4"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-5">
+            <div class="progress-text">Categoria 5 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 62.5%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 5 – PROSPECÇÃO E ATENDIMENTO DE CLIENTES</div>
+                <div class="category-description">Mede sua capacidade de encontrar, atrair, atender e fidelizar clientes.</div>
+            </div>
+            <div id="questions-5"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-6">
+            <div class="progress-text">Categoria 6 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 6 – IDENTIDADE VISUAL E PERSONALIDADE</div>
+                <div class="category-description">Avalia o quanto a sua marca comunica quem você é, transmite valor e cria conexão com o seu público.</div>
+            </div>
+            <div id="questions-6"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Próxima Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-7">
+            <div class="progress-text">Categoria 7 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 87.5%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 7 – INTELIGÊNCIA EMOCIONAL E MENTALIDADE</div>
+                <div class="category-description">Analisa o equilíbrio emocional, a confiança e a disciplina necessários para sustentar o crescimento do negócio.</div>
+            </div>
+            <div id="questions-7"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="nextSection()">Última Categoria</button>
+            </div>
+        </div>
+
+        <div class="section" id="section-8">
+            <div class="progress-text">Categoria 8 de 8</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="category-header">
+                <div class="category-title">ÁREA 8 – POTENCIAL DE ESCALA E URGÊNCIA</div>
+                <div class="category-description">Mede o quanto o seu negócio pode crescer e o quanto é importante agir agora para aproveitar o momento.</div>
+            </div>
+            <div id="questions-8"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevSection()">Voltar</button>
+                <button class="btn btn-primary" onclick="showResults()">Ver Resultados</button>
+            </div>
+        </div>
+
+        <!-- Seção de Resultados -->
+        <div class="section" id="results-section">
+            <h2>Resultados do Diagnóstico</h2>
+            <div class="results-grid" id="results-cards"></div>
+            
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Comparação por Áreas</h3>
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Visão 360° - Radar</h3>
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="recommendations" id="recommendations"></div>
+
+            <div class="objection-breaker">
+                <div class="objection-title">🎯 Próximos Passos: Mentoria de Acompanhamento Personalizado</div>
+                <div class="objection-content">
+                    <strong>Por que agir agora faz diferença para o seu negócio:</strong><br><br>
+
+                    🔥 <strong>Mercado em crescimento:</strong> Negócios afro que se organizam e se posicionam bem podem chegar a faturar de R$ 10k a R$ 50k por mês.<br><br>
+
+                    ⚡ <strong>Janela de oportunidade:</strong> Seu nicho ainda tem espaço, e quem se estrutura primeiro conquista a confiança do público e ocupa o território.<br><br>
+
+                    💰 <strong>Custo da inação:</strong> Cada mês sem organização e estratégia pode deixar de R$ 7k a R$ 20k na mesa. Em 6 meses, isso representa de R$ 42k a R$ 120k.<br><br>
+
+                    🎯 <strong>Vantagem competitiva:</strong> Muitos empreendedores trabalham muito e lucram pouco. Com gestão, marca forte e estratégia, o resultado vem do método, e não só do esforço.<br><br>
+
+                    🚀 <strong>Momento ideal:</strong> Cresce a procura por negócios autênticos e com identidade. Seus clientes valorizam quem entrega qualidade e história com profissionalismo.<br><br>
+
+                    <strong>A pergunta não é SE o seu negócio pode crescer... é QUANTO você vai deixar de ganhar esperando o “momento perfeito”. A mentoria de acompanhamento personalizado ajuda você a dar o próximo passo com método.</strong>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="generatePDF()">📄 Gerar Relatório PDF</button>
+                <button class="btn btn-primary" onclick="restart()">🔄 Nova Avaliação</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados das perguntas
+        const questions = {
+            1: [
+                "O quanto você acredita que seu conhecimento pode entregar transformação para seus clientes?",
+                "O quanto acredita que a transformação que você entrega tem valor real percebido pelo seu cliente?",
+                "O quanto acredita que consegue gerar resultados que podem superar as expectativas dos seus clientes?",
+                "O quanto você acredita que poderia gerar resultados ainda melhores ao se posicionar corretamente e oferecer uma solução personalizada para cada cliente?"
+            ],
+            2: [
+                "O quanto acredita que sua técnica é o diferencial do seu negócio?",
+                "De zero a 10, acredita que dominou completamente as técnicas afro que oferece?",
+                "De zero a 10, o quanto se sente segura em aplicar as suas técnicas afro em suas clientes?",
+                "De zero a 10, quanto é o seu comprometimento com suas técnicas afro? (0 nenhum comprometimento / 5 me comprometo o bastante/ 10 é a base do meu negócio)."
+            ],
+            3: [
+                "De 0 a 10, como definiria a gestão financeira do seu negócio? (0 vai mal / 5 me viro como posso / 10 vai muito bem)",
+                "O quanto você sabe calcular custos e definir preços que garantem lucro e valorizam seu trabalho?",
+                "Com que frequência você analisa a saúde financeira do seu negócio? (0 nunca / 5 ao menos uma vez por mês / 10 uma vez por semana)",
+                "De 0 a 10, como está o seu plano de crescimento financeiro para os próximos 12 meses? (0 não tenho plano / 5 Tenho um objetivo / 10 Tenho um objetivo e um plano definidos e detalhados)"
+            ],
+            4: [
+                "O quanto você acredita que seu cliente precisa do seu serviço hoje?",
+                "De zero a 10, qual o potencial de crescimento do seu negócio na sua opinião? (0 nenhum potencial, estou bem assim / 5 um potencial mediano / 10 potencial para subir de nível social).",
+                "O quanto você acredita que seu cliente estaria disposto a pagar mais caro pelo seu serviço?",
+                "O quanto acredita que seu negócio poderia faturar se tivesse melhor estruturado e com um acompanhamento pessoal? (0 não acredito / 5 20% - 30% a mais / 10 ao menos o dobro)"
+            ],
+            5: [
+                "O quão segura você está sobre a definição do seu cliente ideal?",
+                "O quanto você sabe sobre onde exatamente encontrar clientes dispostos a pagar pelo seu serviço?",
+                "O quanto você conduz atendimentos e conversas de venda com segurança até o fechamento?",
+                "O quanto você sabe sobre criar uma proposta irresistível adaptada ao perfil do seu cliente ideal?"
+            ],
+            6: [
+                "O quanto você acredita que uma boa identidade visual influencia nos seus resultados como profissional AFRO?",
+                "De zero a 10, o quanto acredita que a sua identidade visual está se conectando com seu público alvo?",
+                "O quão satisfeita você está com a identidade visual do seu negócio atualmente?",
+                "De zero a 10, você acredita que a sua identidade visual reflete a qualidade do seu trabalho? (0 não acredito / 5 mais ou menos / 10 reflete totalmente)"
+            ],
+            7: [
+                "O quão segura você está sobre o equilíbrio emocional diante de pressões, críticas e imprevistos do negócio?",
+                "O quanto você acredita no seu potencial de crescer e prosperar com o seu negócio?",
+                "De zero a 10, qual o nível da sua motivação após enfrentar as rejeições, preconceitos e obstáculos do negócio?",
+                "O quanto você mantém disciplina e constância para cumprir metas e planos?"
+            ],
+            8: [
+                "O quanto você acredita que existe demanda reprimida de pessoas que precisam do que você faz, mas ainda não encontraram quem ofereça?",
+                "O quanto você acredita que, nos próximos meses e anos, mais pessoas vão buscar soluções como a sua?",
+                "O quanto acredita que poderia aproveitar a demanda do mercado se tivesse um acompanhamento para crescer com método e técnicas comprovadas?",
+                "O quanto você acredita que, se agir agora, pode conquistar clientes antes que seus concorrentes dominem o seu mercado?"
+            ]
+        };
+
+        const categoryNames = {
+            1: "Potencial de Impacto",
+            2: "Potencial de Técnica",
+            3: "Gestão Financeira",
+            4: "Potencial de Negócios",
+            5: "Prospecção e Atendimento de Clientes",
+            6: "Identidade Visual e Personalidade",
+            7: "Inteligência Emocional e Mentalidade",
+            8: "Potencial de Escala e Urgência"
+        };
+
+        let currentSection = 0;
+        let answers = {};
+
+        // Inicializar perguntas
+        function initQuestions() {
+            for (let category = 1; category <= 8; category++) {
+                const container = document.getElementById(`questions-${category}`);
+                questions[category].forEach((question, index) => {
+                    const questionId = `q${category}_${index + 1}`;
+                    const questionHTML = `
+                        <div class="question-item">
+                            <div class="question-text">${question}</div>
+                            <div class="slider-container">
+                                <input type="range" min="0" max="10" value="0" class="slider" id="${questionId}" 
+                                       oninput="updateSliderValue('${questionId}')">
+                                <div class="slider-labels">
+                                    <span>0</span>
+                                    <span>5</span>
+                                    <span>10</span>
+                                </div>
+                                <div class="slider-value" id="${questionId}_value">0</div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += questionHTML;
+                });
+            }
+        }
+
+        function updateSliderValue(sliderId) {
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(sliderId + '_value');
+            valueDisplay.textContent = slider.value;
+        }
+
+        function nextSection() {
+            if (currentSection === 0) {
+                // Validar dados iniciais
+                const nome = document.getElementById('nome').value;
+                if (!nome.trim()) {
+                    alert('Por favor, preencha seu nome.');
+                    return;
+                }
+            }
+
+            // Salvar respostas da categoria atual
+            if (currentSection > 0) {
+                saveCurrentAnswers();
+            }
+
+            document.getElementById(`section-${currentSection}`).classList.remove('active');
+            currentSection++;
+            document.getElementById(`section-${currentSection}`).classList.add('active');
+        }
+
+        function prevSection() {
+            document.getElementById(`section-${currentSection}`).classList.remove('active');
+            currentSection--;
+            document.getElementById(`section-${currentSection}`).classList.add('active');
+        }
+
+        function saveCurrentAnswers() {
+            if (currentSection >= 1 && currentSection <= 8) {
+                answers[currentSection] = [];
+                questions[currentSection].forEach((_, index) => {
+                    const questionId = `q${currentSection}_${index + 1}`;
+                    const value = parseInt(document.getElementById(questionId).value);
+                    answers[currentSection].push(value);
+                });
+            }
+        }
+
+        function showResults() {
+            saveCurrentAnswers();
+            document.getElementById(`section-${currentSection}`).classList.remove('active');
+            document.getElementById('results-section').classList.add('active');
+            generateResults();
+        }
+
+        function generateResults() {
+            const results = {};
+            let totalScore = 0;
+
+            // Calcular scores por categoria
+            for (let category = 1; category <= 8; category++) {
+                const categoryAnswers = answers[category] || [0, 0, 0, 0];
+                const sum = categoryAnswers.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((sum / 40) * 100);
+                results[category] = {
+                    score: percentage,
+                    status: getStatus(percentage),
+                    answers: categoryAnswers
+                };
+                totalScore += percentage;
+            }
+
+            const overallScore = Math.round(totalScore / 8);
+            results.overall = overallScore;
+
+            // Gerar cards de resultados
+            generateResultCards(results);
+            
+            // Gerar gráficos
+            generateCharts(results);
+            
+            // Gerar recomendações
+            generateRecommendations(results);
+        }
+
+        function getStatus(score) {
+            if (score >= 70) return 'forte';
+            if (score >= 40) return 'oportunidade';
+            return 'prioridade';
+        }
+
+        function generateResultCards(results) {
+            const container = document.getElementById('results-cards');
+            let html = '';
+
+            // Card geral
+            html += `
+                <div class="result-card">
+                    <div class="result-score">${results.overall}%</div>
+                    <div class="result-title">Score Geral</div>
+                    <div class="result-status status-${getStatus(results.overall)}">
+                        ${getStatusText(getStatus(results.overall))}
+                    </div>
+                </div>
+            `;
+
+            // Cards por categoria
+            for (let category = 1; category <= 8; category++) {
+                const result = results[category];
+                html += `
+                    <div class="result-card">
+                        <div class="result-score">${result.score}%</div>
+                        <div class="result-title">${categoryNames[category]}</div>
+                        <div class="result-status status-${result.status}">
+                            ${getStatusText(result.status)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'forte': return 'Ponto Forte';
+                case 'oportunidade': return 'Oportunidade';
+                case 'prioridade': return 'Prioridade';
+                default: return '';
+            }
+        }
+
+        function generateCharts(results) {
+            // Gráfico de barras
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoryNames).map(key => categoryNames[key]),
+                    datasets: [{
+                        label: 'Score (%)',
+                        data: Object.keys(categoryNames).map(key => results[key].score),
+                        backgroundColor: 'rgba(101, 67, 33, 0.8)',
+                        borderColor: '#654321',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Gráfico radar
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(categoryNames).map(key => categoryNames[key]),
+                    datasets: [{
+                        label: 'Seu Score',
+                        data: Object.keys(categoryNames).map(key => results[key].score),
+                        fill: true,
+                        backgroundColor: 'rgba(101, 67, 33, 0.2)',
+                        borderColor: '#654321',
+                        pointBackgroundColor: '#654321',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#654321'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateRecommendations(results) {
+            const container = document.getElementById('recommendations');
+            let html = '<h3>🎯 Análise Detalhada e Recomendações</h3>';
+
+            const pontoForte = [];
+            const oportunidades = [];
+            const prioridades = [];
+
+            for (let category = 1; category <= 8; category++) {
+                const result = results[category];
+                const categoryName = categoryNames[category];
+                
+                if (result.status === 'forte') {
+                    pontoForte.push(categoryName);
+                } else if (result.status === 'oportunidade') {
+                    oportunidades.push(categoryName);
+                } else {
+                    prioridades.push(categoryName);
+                }
+            }
+
+            // Pontos Fortes
+            if (pontoForte.length > 0) {
+                html += `
+                    <div class="recommendation-category rec-forte">
+                        <h4>✅ Pontos Fortes (70%+)</h4>
+                        <p><strong>Áreas:</strong> ${pontoForte.join(', ')}</p>
+                        <p><strong>Recomendação:</strong> Essas são suas vantagens competitivas! Use-as como base para fortalecer sua marca e como argumentos principais na comunicação e nas vendas.</p>
+                    </div>
+                `;
+            }
+
+            // Oportunidades
+            if (oportunidades.length > 0) {
+                html += `
+                    <div class="recommendation-category rec-oportunidade">
+                        <h4>⚡ Oportunidades de Crescimento (40-69%)</h4>
+                        <p><strong>Áreas:</strong> ${oportunidades.join(', ')}</p>
+                        <p><strong>Recomendação:</strong> Com ajustes e acompanhamento nos próximos 3 a 6 meses, essas áreas podem se tornar pontos fortes e multiplicar seus resultados.</p>
+                    </div>
+                `;
+            }
+
+            // Prioridades
+            if (prioridades.length > 0) {
+                html += `
+                    <div class="recommendation-category rec-prioridade">
+                        <h4>🚨 Prioridades Críticas (Abaixo de 40%)</h4>
+                        <p><strong>Áreas:</strong> ${prioridades.join(', ')}</p>
+                        <p><strong>Recomendação:</strong> ATENÇÃO! Essas lacunas estão limitando o crescimento do seu negócio. Vale priorizá-las na mentoria de acompanhamento personalizado, começando pelas mais críticas.</p>
+                    </div>
+                `;
+            }
+
+            // Próximos passos personalizados
+            html += `
+                <div class="recommendation-category" style="background: #f8f9fa; border-left: 5px solid #654321;">
+                    <h4>🎯 Plano de Ação Personalizado</h4>
+                    <p><strong>Próximos 30 dias:</strong> ${getNextSteps30(results)}</p>
+                    <p><strong>Próximos 90 dias:</strong> ${getNextSteps90(results)}</p>
+                    <p><strong>Meta 6 meses:</strong> Transformar suas oportunidades em pontos fortes e ter um negócio mais organizado, com marca consistente e clientes recorrentes, pronto para escalar.</p>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function getNextSteps30(results) {
+            const prioridades = [];
+            for (let category = 1; category <= 8; category++) {
+                if (results[category].status === 'prioridade') {
+                    prioridades.push(category);
+                }
+            }
+
+            if (prioridades.length > 0) {
+                const categoryNames30 = {
+                    1: "Registre o impacto que seu negócio gera para clientes e comunidade, reunindo exemplos e depoimentos",
+                    2: "Padronize seu processo técnico, definindo o padrão mínimo de qualidade de cada entrega",
+                    3: "Separe as finanças pessoais das do negócio e passe a registrar receitas e despesas toda semana",
+                    4: "Defina seu público ideal e escreva sua proposta de valor em uma frase",
+                    5: "Monte uma rotina semanal de prospecção e um roteiro simples de atendimento",
+                    6: "Defina paleta de cores, estilo e tom de voz e aplique-os nos seus principais canais",
+                    7: "Crie uma rotina de cuidado emocional e de planejamento semanal, com metas pequenas e alcançáveis",
+                    8: "Defina uma meta de crescimento para os próximos 6 meses e o primeiro passo para alcançá-la"
+                };
+                return categoryNames30[prioridades[0]];
+            }
+            return "Aprofundar as áreas de oportunidade identificadas e definir, com apoio da mentoria, as metas dos próximos meses";
+        }
+
+        function getNextSteps90(results) {
+            return "Implementar um plano com acompanhamento personalizado: organizar as finanças, fortalecer a marca, estruturar a prospecção e o atendimento e acompanhar os resultados de cada etapa, ajustando conforme os números reais.";
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Cabeçalho
+            doc.setFontSize(20);
+            doc.text('Diagnóstico de Negócios AFRO', 20, 30);
+            
+            const nome = document.getElementById('nome').value;
+            doc.setFontSize(14);
+            doc.text(`Empreendedor(a): ${nome}`, 20, 45);
+            doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 55);
+            
+            // Resultados por categoria
+            doc.setFontSize(16);
+            doc.text('Resultados por Área:', 20, 75);
+            
+            let y = 90;
+            for (let category = 1; category <= 8; category++) {
+                const result = answers[category] || [0, 0, 0, 0];
+                const sum = result.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((sum / 40) * 100);
+                
+                doc.setFontSize(12);
+                doc.text(`${categoryNames[category]}: ${percentage}%`, 20, y);
+                y += 15;
+            }
+            
+            // Salvar PDF
+            doc.save(`diagnostico-afro-${nome.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+        }
+
+        function restart() {
+            currentSection = 0;
+            answers = {};
+            
+            // Limpar formulários
+            document.getElementById('nome').value = '';
+            document.getElementById('ideia').value = '';
+            document.getElementById('experiencia').value = '';
+            
+            // Resetar sliders
+            for (let category = 1; category <= 8; category++) {
+                questions[category].forEach((_, index) => {
+                    const questionId = `q${category}_${index + 1}`;
+                    document.getElementById(questionId).value = 0;
+                    document.getElementById(questionId + '_value').textContent = '0';
+                });
+            }
+            
+            // Mostrar primeira seção
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById('section-0').classList.add('active');
+        }
+
+        // ===== Edição direta de textos =====
+        const EDIT_SELECTORS = ['.logo', '.header h1', '.header p', '.section h2', '.form-group label', '.category-title', '.category-description', '.question-text', '.objection-title', '.objection-content'];
+        const EDIT_KEY = 'fht_edits_v3';
+        const originals = {};
+
+        function loadEdits() { try { return JSON.parse(localStorage.getItem(EDIT_KEY) || '{}'); } catch (e) { return {}; } }
+        function saveEdits(obj) { try { localStorage.setItem(EDIT_KEY, JSON.stringify(obj)); } catch (e) {} }
+
+        function setupEditable() {
+            const saved = loadEdits();
+            EDIT_SELECTORS.forEach(sel => {
+                document.querySelectorAll(sel).forEach((el, i) => {
+                    const key = sel + '#' + i;
+                    el.dataset.edit = key;
+                    originals[key] = el.innerHTML;
+                    if (saved[key] !== undefined) el.innerHTML = saved[key];
+                    el.addEventListener('input', () => {
+                        const s = loadEdits();
+                        s[key] = el.innerHTML;
+                        saveEdits(s);
+                    });
+                });
+            });
+        }
+
+        function toggleEdit() {
+            const on = document.body.classList.toggle('editing');
+            document.querySelectorAll('[data-edit]').forEach(el => { el.contentEditable = on ? 'true' : 'false'; });
+            document.getElementById('btn-edit').textContent = on ? '✅ Concluir edição' : '✏️ Modo edição';
+            document.getElementById('btn-reset').style.display = on ? 'inline-block' : 'none';
+        }
+
+        function resetEdits() {
+            if (!confirm('Restaurar todos os textos originais?')) return;
+            saveEdits({});
+            document.querySelectorAll('[data-edit]').forEach(el => { el.innerHTML = originals[el.dataset.edit]; });
+        }
+
+        window.addEventListener('load', setupEditable);
+
+        // Inicializar aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            initQuestions();
+        });
+    </script>
+</body>
+</html>
